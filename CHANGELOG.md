@@ -7,6 +7,9 @@ Verze se číslují `HLAVNÍ.VEDLEJŠÍ.OPRAVA`:
 
 Každá verze má v gitu značku (tag) `vX.Y.Z`. Aktuální číslo verze je vidět v patičce aplikace.
 
+## 1.2.2 – 11. 11. 2026
+- Odstraněna legenda kódů pod aplikací.
+
 ## 1.2.1 – 11. 11. 2026
 - Název aplikace v záhlaví je fialový (barva aplikace) a tučnější.
 

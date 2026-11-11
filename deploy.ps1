@@ -1,4 +1,4 @@
-# Nasazeni aplikace Vyhledavac IOL - DOCTIS na Firebase Hosting.
+# Nasazeni aplikace Vyhledavac IOL v DOCTISu na Firebase Hosting.
 # Spousteni: irm "https://raw.githubusercontent.com/OFTALMED/WebApp/vyhledavac-iol-doctis/deploy.ps1" | iex
 $ErrorActionPreference = "Stop"
 $base = "https://raw.githubusercontent.com/OFTALMED/WebApp/vyhledavac-iol-doctis"

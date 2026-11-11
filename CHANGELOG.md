@@ -9,6 +9,7 @@ Každá verze má v gitu značku (tag) `vX.Y.Z`. Aktuální číslo verze je vid
 
 ## 1.2.2 – 11. 11. 2026
 - Odstraněna legenda kódů pod aplikací.
+- Nasazovací skript stahuje vždy přesně poslední verzi (bez zpoždění cache GitHubu).
 
 ## 1.2.1 – 11. 11. 2026
 - Název aplikace v záhlaví je fialový (barva aplikace) a tučnější.

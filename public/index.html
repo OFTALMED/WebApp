@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%236a4fc9'/%3E%3Cellipse cx='16' cy='16' rx='9' ry='6' fill='none' stroke='white' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='3' fill='white'/%3E%3C/svg%3E">
+<title>Vyhledávač IOL – DOCTIS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+[hidden] { display: none !important; }
+/* Layout: jeden sloupec, 4 kroky jako mřížky dlaždic, výsledný kód dole */
+:root {
+  /* Levandule – záměrně jen světlý vzhled */
+  --bg: #f5f3fb; --surface: #ffffff; --fg: #251f3a; --muted: #6d6588; --line: #e0dbef;
+  --accent: #6a4fc9; --accent-soft: #eee9fc; --accent-fg: #ffffff;
+  --code-bg: #251f3a; --code-fg: #f3efff; --warn: #a0521b; --warn-bg: #fdeede; --ok: #2b7a55;
+  --f-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 999px; --r-lg: 22px; --shadow: 0 6px 24px rgba(70, 50, 140, .07);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+main { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+h1 { font-size: 1.4rem; font-weight: 600; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 2px 0 0; font-size: .95rem; }
+section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+section[hidden] { display: none !important; }
+.head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.step { display: flex; align-items: baseline; gap: 10px; margin: 0; font-size: 20px; font-weight: 600; }
+.step b { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); font-size: .8rem; flex: none; }
+.val { font: 800 24px/1.1 var(--f-mono); color: var(--accent); font-variant-numeric: tabular-nums; }
+.note { margin: 0; font-size: .82rem; color: var(--muted); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 6px; }
+.tiles.types { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+.tiles.wide { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+.tile {
+  font: 600 16px var(--f-mono); font-variant-numeric: tabular-nums;
+  min-height: 46px; padding: 6px 4px; border-radius: var(--r); cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--fg);
+}
+.tile:hover:not(:disabled) { border-color: var(--accent); }
+.tile[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.tile:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.tile:disabled { opacity: .3; cursor: not-allowed; }
+.tile.more { background: var(--accent-soft); border-style: dashed; border-color: var(--accent); color: var(--accent); letter-spacing: .1em; }
+.tile.type { font-family: var(--f-body); font-size: .95rem; text-align: left; padding: 8px 12px; display: flex; flex-direction: column; justify-content: flex-start; gap: 1px; border-radius: 16px; padding-top: 10px; }
+.tile.type small { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; opacity: .75; font-weight: 500; }
+.signs { display: flex; gap: 6px; }
+.signs .tile { width: 64px; font-size: 1.3rem; }
+.sphrow { display: flex; gap: 16px; align-items: stretch; }
+.sphleft { display: flex; flex-direction: column; gap: 8px; flex: none; width: 190px; }
+.sphright { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.signs .tile { width: 84px; }
+.decgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.decgrid .more { grid-column: 1 / -1; }
+.divider { width: 4px; border-radius: 2px; background: var(--accent); opacity: .6; flex: none; }
+.lbl { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; margin-top: 4px; }
+.summary { margin: 4px 2px 0; font-size: 1.25rem; line-height: 1.45; }
+.summary strong, .summary .m { color: var(--accent); font-weight: 600; }
+.summary .m { white-space: nowrap; }
+@media (max-width: 520px) { .sphrow { flex-direction: column; } .sphleft { width: 100%; } .divider { width: auto; height: 3px; } }
+
+.result { gap: 12px; }
+.code {
+  background: var(--code-bg); color: var(--code-fg); font: 600 1.3rem/1.35 var(--f-mono); letter-spacing: .02em;
+  padding: 14px 16px; border-radius: 14px; overflow-x: auto; white-space: pre; user-select: all; min-height: 3.1rem;
+}
+.code.empty { color: var(--muted); font-weight: 500; font-size: 1rem; font-family: var(--f-body); white-space: normal; user-select: none; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+button.act { font: 600 1rem var(--f-body); padding: 12px 20px; border-radius: var(--r); cursor: pointer; border: 1.5px solid var(--accent); }
+button.act:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+#copy { background: var(--accent); color: var(--accent-fg); flex: 1 1 200px; }
+#copy:disabled { opacity: .4; cursor: not-allowed; }
+#reset { background: transparent; color: var(--accent); }
+.status { min-height: 1.4em; margin: 0; font-size: .9rem; color: var(--ok); font-weight: 600; }
+.status.warn { color: var(--warn); }
+details { color: var(--muted); font-size: .88rem; }
+details summary { cursor: pointer; }
+.legend { overflow-x: auto; }
+.legend table { border-collapse: collapse; margin-top: 8px; width: 100%; }
+.legend td { padding: 5px 8px 5px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.legend code { font-family: var(--f-mono); color: var(--fg); white-space: nowrap; }
+@media (prefers-reduced-motion: no-preference) { .tile, button.act { transition: background .1s, border-color .1s; } }
+</style>
+
+<main>
+  <header>
+    <h1>Kód nitrooční čočky</h1>
+    <p class="sub">Nejdřív vyberte typ IOL, pak dioptrie. Hotový kód se sám zkopíruje, pak ho vložte Ctrl+V.</p>
+  </header>
+
+  <section aria-labelledby="h1s">
+    <div class="head"><h2 class="step" id="h1s"><b>1</b>Typ IOL</h2></div>
+    <div class="tiles types" id="types"></div>
+  </section>
+
+  <section aria-labelledby="h2s" id="sphSec" hidden>
+    <div class="head"><h2 class="step" id="h2s"><b>2</b>Sféra (Dsf)</h2><span class="val" id="sphVal"></span></div>
+    <div class="signs" role="group" aria-label="Znaménko">
+      <button class="tile" id="sgnPlus" type="button" aria-pressed="true">+</button>
+      <button class="tile" id="sgnMinus" type="button" aria-pressed="false">−</button>
+    </div>
+    <div class="sphrow">
+      <div class="sphright">
+        <span class="lbl">Celé dioptrie</span>
+        <div class="tiles" id="whole"></div>
+      </div>
+      <div class="divider" aria-hidden="true"></div>
+      <div class="sphleft">
+        <span class="lbl">Desetiny</span>
+        <div class="decgrid" id="dec"></div>
+      </div>
+    </div>
+    <p class="note" id="decNote" hidden></p>
+  </section>
+
+  <section aria-labelledby="h4s" id="cylSec" hidden>
+    <div class="head"><h2 class="step" id="h4s"><b>3</b>Cylindr (Dcyl)</h2><span class="val" id="cylVal"></span></div>
+    <div class="tiles wide" id="cyl"></div>
+  </section>
+
+  <p class="summary" id="summary" hidden></p>
+
+  <section class="result" aria-labelledby="h5s" id="resSec" hidden>
+    <div class="head"><h2 class="step" id="h5s">Výsledný kód</h2></div>
+    <div class="code empty" id="code" aria-live="polite">Vyberte typ IOL.</div>
+    <div class="actions">
+      <button class="act" id="copy" type="button" disabled>Kopírovat</button>
+      <button class="act" id="reset" type="button">Nové zadání</button>
+    </div>
+    <p class="status" id="status" role="status"></p>
+  </section>
+
+  <details>
+    <summary>Legenda kódů</summary>
+    <div class="legend">
+      <table>
+        <tr><td>AT TORBI</td><td><code>*AT TORBI 719M SE+15.00 CYL02.5</code></td></tr>
+        <tr><td>AT LISA multifokální</td><td><code>*AT LISA TRI 839MP DPT 15,0</code></td></tr>
+        <tr><td>AT LISA multifokální torická</td><td><code>*AT LISA TRI TORIC 949M SE+15.00 CYL02.5</code></td></tr>
+        <tr><td>LuxSmart EDOF</td><td><code>*YSMARTD+15.00D</code></td></tr>
+        <tr><td>LuxSmart EDOF torická</td><td><code>*YSMARTTD250+150</code> (cyl 2,50 · sf +15,0)</td></tr>
+      </table>
+    </div>
+  </details>
+</main>
+
+<script>
+(function () {
+  var sign = function (x) { return x < 0 ? "-" : "+"; };
+  var abs = Math.abs;
+  var cylZeiss = function (c) { var s = abs(c).toFixed(1); return s.length < 4 ? "0" + s : s; };
+  var pad3 = function (n) { var s = String(Math.round(n)); while (s.length < 3) s = "0" + s; return s; };
+
+  // halfOnly: formát kódu má u sféry jen 1 desetinné místo -> ,25 / ,75 nelze zapsat
+  var TYPES = [
+    { id: "torbi", name: "AT TORBI", full: "AT TORBI 719M", tag: "torická", toric: true,
+      fmt: function (s, c) { return "*AT TORBI 719M SE" + sign(s) + abs(s).toFixed(2) + " CYL" + cylZeiss(c); } },
+    { id: "lisa", name: "AT LISA", full: "AT LISA TRI 839MP", tag: "multifokální", toric: false, halfOnly: true,
+      fmt: function (s) { return "*AT LISA TRI 839MP DPT " + (s < 0 ? "-" : "") + abs(s).toFixed(1).replace(".", ","); } },
+    { id: "lisat", name: "AT LISA toric", full: "AT LISA TRI TORIC 949M", tag: "multifokální torická", toric: true,
+      fmt: function (s, c) { return "*AT LISA TRI TORIC 949M SE" + sign(s) + abs(s).toFixed(2) + " CYL" + cylZeiss(c); } },
+    { id: "lux", name: "LuxSmart", full: "LuxSmart EDOF", tag: "EDOF", toric: false,
+      fmt: function (s) { return "*YSMARTD" + sign(s) + abs(s).toFixed(2) + "D"; } },
+    { id: "luxt", name: "LuxSmart toric", full: "LuxSmart EDOF torická", tag: "EDOF torická", toric: true, halfOnly: true,
+      fmt: function (s, c) { return "*YSMARTTD" + pad3(abs(c) * 100) + sign(s) + pad3(abs(s) * 10); } }
+  ];
+  var MAX_MINUS = 15; // nejvyšší povolená záporná celá dioptrie
+
+  var st;
+  function fresh() { return { type: null, neg: false, whole: null, dec: null, cyl: null, low: 0, high: false, decMore: false, cylMore: false }; }
+  st = fresh();
+
+  var $ = function (id) { return document.getElementById(id); };
+  var lastCopied = "";
+
+  function tile(label, opts) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "tile" + (opts.cls ? " " + opts.cls : "");
+    if (opts.html) b.innerHTML = label; else b.textContent = label;
+    if (opts.pressed !== undefined) b.setAttribute("aria-pressed", opts.pressed ? "true" : "false");
+    if (opts.disabled) b.disabled = true;
+    if (opts.title) b.title = opts.title;
+    if (opts.aria) b.setAttribute("aria-label", opts.aria);
+    b.addEventListener("click", opts.onClick);
+    return b;
+  }
+  function more(aria, fn) { return tile("…", { cls: "more", aria: aria, title: aria, onClick: fn }); }
+  function range(a, b) { var r = []; for (var i = a; i <= b; i++) r.push(i); return r; }
+  var cz = function (n, d) { return n.toFixed(d).replace(".", ","); };
+
+  function type() { return TYPES.filter(function (t) { return t.id === st.type; })[0] || null; }
+
+  function sphere() {
+    if (st.whole === null || st.dec === null) return null;
+    var v = st.whole + st.dec;
+    return st.neg && v !== 0 ? -v : v;
+  }
+
+  function render() {
+    var t = type();
+
+    // 1 typ
+    var T = $("types"); T.innerHTML = "";
+    TYPES.forEach(function (x) {
+      T.appendChild(tile(x.name + "<small>" + x.tag + "</small>", { html: true, cls: "type", pressed: st.type === x.id,
+        onClick: function () { var first = !st.type; st.type = x.id; changed(); if (first) $("sphSec").scrollIntoView({ block: "nearest", behavior: "smooth" }); } }));
+    });
+
+    // 2 celé dioptrie
+    $("sgnPlus").setAttribute("aria-pressed", st.neg ? "false" : "true");
+    $("sgnMinus").setAttribute("aria-pressed", st.neg ? "true" : "false");
+    var W = $("whole"); W.innerHTML = "";
+    var nums = [];
+    if (st.low === 0) W.appendChild(more("Zobrazit 8–15", function () { st.low = 1; render(); }));
+    if (st.low === 1) W.appendChild(more("Zobrazit 0–7", function () { st.low = 2; render(); }));
+    if (st.low >= 2) nums = nums.concat(range(0, 7));
+    if (st.low >= 1) nums = nums.concat(range(8, 15));
+    nums = nums.concat(range(16, 30));
+    nums.forEach(function (n) { W.appendChild(wholeTile(n)); });
+    if (!st.high) W.appendChild(more("Zobrazit 31–40", function () { st.high = true; render(); }));
+    else range(31, 40).forEach(function (n) { W.appendChild(wholeTile(n)); });
+
+    // 3 desetiny
+    var D = $("dec"); D.innerHTML = "";
+    var quarterBlocked = t && t.halfOnly;
+    var decs = st.decMore ? [0, 0.5, 0.25, 0.75] : [0, 0.5];
+    decs.forEach(function (d) {
+      var q = d === 0.25 || d === 0.75;
+      D.appendChild(tile("," + String(Math.round(d * 100)).padStart(2, "0"), { pressed: st.dec === d,
+        disabled: q && quarterBlocked,
+        title: q && quarterBlocked ? "Kód tohoto typu má jen 1 desetinné místo" : "",
+        onClick: function () { st.dec = d; changed(); } }));
+    });
+    if (!st.decMore) D.appendChild(more("Zobrazit ,25 a ,75", function () { st.decMore = true; render(); }));
+    var dn = $("decNote");
+    dn.hidden = !(quarterBlocked && st.decMore);
+    dn.textContent = quarterBlocked ? t.name + ": kód má jen jedno desetinné místo, hodnoty ,25 / ,75 nejde zapsat." : "";
+
+    $("sphSec").hidden = !t;
+    $("resSec").hidden = !t;
+    // 4 cylindr
+    var showCyl = !!t && t.toric;
+    $("cylSec").hidden = !showCyl;
+    var C = $("cyl"); C.innerHTML = "";
+    var cyls = []; for (var k = 2; k <= 10; k++) cyls.push(k / 2);
+    if (st.cylMore) for (k = 11; k <= 20; k++) cyls.push(k / 2);
+    cyls.forEach(function (c) {
+      C.appendChild(tile(cz(c, 1), { pressed: st.cyl === c, onClick: function () { st.cyl = c; changed(); } }));
+    });
+    if (!st.cylMore) C.appendChild(more("Zobrazit 5,5–10,0", function () { st.cylMore = true; render(); }));
+
+    // souhrny
+    var s = sphere();
+    $("sphVal").textContent = st.whole === null ? "" :
+      (st.neg && s !== 0 ? "−" : "+") + st.whole + (st.dec === null ? ",__" : "," + String(Math.round(st.dec * 100)).padStart(2, "0")) + " D";
+    $("cylVal").textContent = st.cyl === null ? "" : cz(st.cyl, 1) + " D";
+
+    // kód
+    var code = currentCode();
+    var el = $("code");
+    if (code) { el.textContent = code; el.classList.remove("empty"); }
+    else {
+      el.classList.add("empty");
+      el.textContent = !t ? "Vyberte typ IOL." : st.whole === null ? "Vyberte celé dioptrie sféry." :
+        st.dec === null ? "Vyberte desetiny sféry." : (t.halfOnly && st.dec % 0.5 !== 0) ? "Tento typ nepodporuje ,25 / ,75 – zvolte jinou desetinu." :
+        "Vyberte cylindr.";
+    }
+    $("copy").disabled = !code;
+
+    var sm = $("summary");
+    sm.hidden = !code;
+    if (code) {
+      var sTxt = (s < 0 ? "−" : "+") + cz(abs(s), 2) + " Dsf";
+      sm.innerHTML = "Byla vybrána IOL typu <strong>" + t.full + "</strong> o dioptrické síle <span class=\"m\">" + sTxt +
+        (t.toric ? " / +" + cz(st.cyl, 2) + " Dcyl" : "") + "</span>";
+    }
+  }
+
+  function wholeTile(n) {
+    return tile(String(n), { pressed: st.whole === n, disabled: st.neg && n > MAX_MINUS,
+      onClick: function () { st.whole = n; changed(); } });
+  }
+
+  function currentCode() {
+    var t = type(), s = sphere();
+    if (!t || s === null) return "";
+    if (t.halfOnly && st.dec % 0.5 !== 0) return "";
+    if (t.toric && st.cyl === null) return "";
+    return t.fmt(s, t.toric ? st.cyl : 0);
+  }
+
+  function changed() {
+    render();
+    var code = currentCode(), status = $("status");
+    if (code && code !== lastCopied) copy(code);
+    else if (!code) { status.textContent = ""; lastCopied = ""; }
+  }
+
+  function setStatus(text, warn) { var s = $("status"); s.textContent = text; s.classList.toggle("warn", !!warn); }
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    return ok;
+  }
+  function copy(text) {
+    var done = function () { lastCopied = text; setStatus("✓ Zkopírováno – vložte Ctrl+V"); };
+    var fail = function () {
+      if (fallbackCopy(text)) return done();
+      var r = document.createRange(); r.selectNodeContents($("code"));
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      setStatus("Kód je označený – zkopírujte ho Ctrl+C.", true);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail);
+    else fail();
+  }
+
+  $("sgnPlus").addEventListener("click", function () { st.neg = false; changed(); });
+  $("sgnMinus").addEventListener("click", function () {
+    st.neg = true;
+    if (st.low < 2) st.low = 2;               // záporné hodnoty jsou nízké – rovnou ukázat 0–15
+    if (st.whole !== null && st.whole > MAX_MINUS) st.whole = null;
+    changed();
+  });
+  $("copy").addEventListener("click", function () { var c = currentCode(); if (c) copy(c); });
+  $("reset").addEventListener("click", function () { st = fresh(); lastCopied = ""; setStatus(""); render(); });
+
+  render();
+})();
+</script>
+</html>

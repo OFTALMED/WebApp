@@ -7,6 +7,9 @@ Verze se číslují `HLAVNÍ.VEDLEJŠÍ.OPRAVA`:
 
 Každá verze má v gitu značku (tag) `vX.Y.Z`. Aktuální číslo verze je vidět v patičce aplikace.
 
+## 1.2.1 – 11. 11. 2026
+- Název aplikace v záhlaví je fialový (barva aplikace) a tučnější.
+
 ## 1.2.0 – 11. 11. 2026
 - Název aplikace v záhlaví i v záložce prohlížeče: **Vyhledávač IOL v DOCTISu**.
 - V patičce se zobrazuje číslo verze a datum vydání.

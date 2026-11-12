@@ -7,6 +7,10 @@ Verze se číslují `HLAVNÍ.VEDLEJŠÍ.OPRAVA`:
 
 Každá verze má v gitu značku (tag) `vX.Y.Z`. Aktuální číslo verze je vidět v patičce aplikace.
 
+## 2.1.1 – 12. 11. 2026
+- Aktualizován katalog čoček podle nové tabulky IOLs.xlsx (sjednocené názvy, opravené hodnoty u 4 čoček AT TORBI a 3 čoček AT LISA TRI toric, nově AT LISA TRI 839MP DPT 22.0 – 003500-0006-051).
+- AT TORBI 719MP zůstávají vyloučené.
+
 ## 2.1.0 – 12. 11. 2026
 - Katalogové číslo se už nekopíruje automaticky – jen kliknutím na tlačítko **Kopírovat**; pod ním se zeleně ukáže „Byl zkopírován kód: …“.
 - Z vyhledávání vyloučeny čočky **AT TORBI 719MP** (`EXCLUDE_MODELS` v `tools/build_data.py`).

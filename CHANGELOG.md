@@ -7,6 +7,12 @@ Verze se číslují `HLAVNÍ.VEDLEJŠÍ.OPRAVA`:
 
 Každá verze má v gitu značku (tag) `vX.Y.Z`. Aktuální číslo verze je vidět v patičce aplikace.
 
+## 2.0.0 – 12. 11. 2026
+- **Místo vyhledávacího kódu aplikace najde čočku v katalogu** (tabulka IOLs.xlsx, listy LuxSmart, AT TORBI, AT LISA – 4 889 položek) a nabídne ke zkopírování **katalogové číslo** (sloupec J) s přesným názvem čočky (sloupec E).
+- Má-li čočka v katalogu víc provedení (např. AT TORBI 719M a 719MP), zobrazí se všechna, každé s vlastním tlačítkem Kopírovat. Jediné provedení se zkopíruje samo.
+- Dlaždice dioptrií, které v katalogu pro zvolený typ nejsou, jsou zašedlé. Cylindry se nabízejí podle katalogu (u LuxSmart toric 0,75 / 1,0 / 1,5 / 2,25 / 3,0 …).
+- Aktualizace katalogu: `python3 tools/build_data.py IOLs.xlsx`.
+
 ## 1.2.3 – 12. 11. 2026
 - AT LISA TRI: desetinná tečka místo čárky – `*AT LISA TRI 839MP DPT 18.0`.
 

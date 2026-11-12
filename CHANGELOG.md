@@ -7,6 +7,10 @@ Verze se číslují `HLAVNÍ.VEDLEJŠÍ.OPRAVA`:
 
 Každá verze má v gitu značku (tag) `vX.Y.Z`. Aktuální číslo verze je vidět v patičce aplikace.
 
+## 2.1.0 – 12. 11. 2026
+- Katalogové číslo se už nekopíruje automaticky – jen kliknutím na tlačítko **Kopírovat**; pod ním se zeleně ukáže „Byl zkopírován kód: …“.
+- Z vyhledávání vyloučeny čočky **AT TORBI 719MP** (`EXCLUDE_MODELS` v `tools/build_data.py`).
+
 ## 2.0.0 – 12. 11. 2026
 - **Místo vyhledávacího kódu aplikace najde čočku v katalogu** (tabulka IOLs.xlsx, listy LuxSmart, AT TORBI, AT LISA – 4 889 položek) a nabídne ke zkopírování **katalogové číslo** (sloupec J) s přesným názvem čočky (sloupec E).
 - Má-li čočka v katalogu víc provedení (např. AT TORBI 719M a 719MP), zobrazí se všechna, každé s vlastním tlačítkem Kopírovat. Jediné provedení se zkopíruje samo.

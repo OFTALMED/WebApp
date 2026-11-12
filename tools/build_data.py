@@ -6,6 +6,9 @@ Sloupce: E = Název, F = Dopl (u LuxSmart nese dioptrie), J = Kat.č.
 import json, re, sys, collections, pathlib
 import openpyxl
 
+# Modely, které se ve vyhledávání nenabízejí
+EXCLUDE_MODELS = {'719MP'}
+
 def num(s):
     return float(s.replace(',', '.').replace(' ', ''))
 
@@ -13,6 +16,7 @@ def parse(path):
     wb = openpyxl.load_workbook(path, data_only=True)
     data = collections.defaultdict(list)
     skipped = []
+    excluded = 0
     for ws in wb:
         for i, r in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
             raw_name = str(r[4] or '').strip()
@@ -32,9 +36,12 @@ def parse(path):
                     if m:
                         t, s = 'lux', num(m.group(1))
             elif 'TORBI' in u:
-                m = re.search(r'TORBI \w+ SE\s*([+-])\s*([\d.,]+) CYL\s*([\d.,]+)', u)
+                m = re.search(r'TORBI (\w+) SE\s*([+-])\s*([\d.,]+) CYL\s*([\d.,]+)', u)
+                if m and m.group(1) in EXCLUDE_MODELS:
+                    excluded += 1
+                    continue
                 if m:
-                    t, s, c = 'torbi', num(m.group(2)) * (-1 if m.group(1) == '-' else 1), num(m.group(3))
+                    t, s, c = 'torbi', num(m.group(3)) * (-1 if m.group(2) == '-' else 1), num(m.group(4))
             elif 'LISA TRI TORIC' in u:
                 m = re.search(r'TORIC \w+ (?:SE)?\s*([+-])\s*([\d.,]+)(?: CYL\s*([\d.,]+))?', u)
                 if m:
@@ -54,6 +61,7 @@ def parse(path):
                 skipped.append(f'{ws.title} ř.{i}: {name} | {dopl}')
     for t in data:
         data[t].sort(key=lambda x: (x[0], x[1] or 0, x[3]))
+    print('Vyloučeno modelů', sorted(EXCLUDE_MODELS), ':', excluded)
     return data, skipped
 
 def main():

@@ -7,6 +7,9 @@ Verze se číslují `HLAVNÍ.VEDLEJŠÍ.OPRAVA`:
 
 Každá verze má v gitu značku (tag) `vX.Y.Z`. Aktuální číslo verze je vidět v patičce aplikace.
 
+## 1.2.3 – 12. 11. 2026
+- AT LISA TRI: desetinná tečka místo čárky – `*AT LISA TRI 839MP DPT 18.0`.
+
 ## 1.2.2 – 11. 11. 2026
 - Odstraněna legenda kódů pod aplikací.
 - Nasazovací skript stahuje vždy přesně poslední verzi (bez zpoždění cache GitHubu).
